@@ -1,0 +1,43 @@
+###
+### A complete description of a Prefect Deployment for flow 'Accidentologie en NC'
+###
+name: accidentologie
+description: null
+version: 47f3c3272187eabe63ce958c18216ee1
+# The work queue that will handle this deployment's runs
+work_queue_name: default
+work_pool_name: default-agent-pool
+tags: []
+parameters: {}
+schedule: null
+is_schedule_active: true
+infra_overrides: {}
+
+###
+### DO NOT EDIT BELOW THIS LINE
+###
+flow_name: Accidentologie en NC
+manifest_path: null
+infrastructure:
+  type: process
+  env: {}
+  labels: {}
+  name: null
+  command: null
+  stream_output: true
+  working_dir: null
+  _block_document_id: 73e00af0-03c3-402e-b6b3-03a166099b03
+  _block_document_name: anonymous-97583758-65f8-487a-8663-bbe3b7a212ca
+  _is_anonymous: true
+  block_type_slug: process
+  _block_type_slug: process
+storage: null
+path: /home/coder/accidentologie_nc/src
+entrypoint: workflow.py:accidentologie
+parameter_openapi_schema:
+  title: Parameters
+  type: object
+  properties: {}
+  required: null
+  definitions: null
+timestamp: '2023-03-01T04:23:10.543140+00:00'
