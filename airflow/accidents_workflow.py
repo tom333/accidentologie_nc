@@ -17,7 +17,7 @@ from airflow.decorators import dag, task
         "retry_delay": timedelta(minutes=5),
     },
     description="Analyse des accidents en Nouvelle Caldédonie",
-    schedule=timedelta(days=1),
+    schedule=None,
     start_date=datetime(2021, 1, 1),
     catchup=False,
     tags=["accidents", "nc", "ml"],
