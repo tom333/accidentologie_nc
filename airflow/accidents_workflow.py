@@ -39,6 +39,41 @@ def accidents_workflow():
         usagers = pd.concat([usagers, pd.read_csv('https://www.data.gouv.fr/fr/datasets/r/36b1b7b3-84b4-4901-9163-59ae8a9e3028', delimiter=';')])
         return pd.merge(caracteristiques, usagers, how='left', left_on=['Num_Acc'], right_on=['Num_Acc'])
 
+    @task.virtualenv(
+        task_id="filter_nc", requirements=["pandas"], system_site_packages=False
+    )
+    def filter_nc(df_all):
+        df = df_all.loc[df_all.dep.isin(['988']), ['jour' , 'mois', 'an' , 'grav', 'hrmn', 'lat', 'long', 'lum', 'atm']]
+
+        df['lum'] = df['lum'].astype("category")
+        df['atm'] = df['atm'].astype("category")
+        df['jour'] = df['jour'].astype("category")
+        df['mois'] = df['mois'].astype("category")
+        df['an'] = df['an'].astype("category")
+        df['grav'] = df['grav'].astype("category")
+
+        df = df.applymap(lambda x: x.strip().replace(',', '.') if isinstance(x, str) else x)
+        df["lat"] = pd.to_numeric(df["lat"], downcast="float")
+        df["long"] = pd.to_numeric(df["long"], downcast="float")
+        return df
+
+    @task.virtualenv(
+        task_id="train", requirements=["pandas"], system_site_packages=False
+    )
+    def train(df):
+        df['day_of_year'] = pd.to_datetime(df['jour'].astype(str) + "/" + df['mois'].astype(str) + "/" + df['an'].astype(str), format='%d/%m/%Y').dt.day_of_year
+        df['date'] = pd.to_datetime(df['jour'].astype(str) + "/" + df['mois'].astype(str) + "/" + df['an'].astype(str), format='%d/%m/%Y')
+        data = df.groupby(['date']).size().reset_index(name="y")
+        df.set_index("date", inplace=True)
+        df = df.resample("1D").mean()
+        df["time_idx"] = (df.index.view(int) / pd.Timedelta("1D").value).astype(int)
+        df["time_idx"] -= df["time_idx"].min()
+
+        df["constant"] = 0
+
     data = download_data()
+    data_nc = filter_nc(data)
+    train(data_nc)
+
 
 accidents_workflow()
